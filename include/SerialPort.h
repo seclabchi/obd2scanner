@@ -19,18 +19,21 @@ using namespace std;
 class SerialPort
 {
     public:
-    SerialPort(string portName);
+    SerialPort(string portName, uint32_t baudRate);
     virtual ~SerialPort();
     void open();
     int close();
     bool isOpen();
     void setLineDelimiter(char delim);
     
-    void txData(vector<uint8_t> msg);
+    void txData(vector<uint8_t> msg, bool useDelim = true);
+    void txData(const char* strMsg, bool useDelim = true);
     vector<uint8_t> rxData();
+    vector<uint8_t> readLine();
 
     private:
     string m_portName;
+    uint32_t m_baudRate;
     int m_portFd;
     bool m_isOpen;
     struct termios m_existingPortSettings;

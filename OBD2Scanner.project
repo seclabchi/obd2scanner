@@ -6,12 +6,14 @@
     <File Name="include/SerialPort.h"/>
     <File Name="include/Exception.h"/>
     <File Name="include/Logger.h"/>
+    <File Name="include/CommInterface.h"/>
   </VirtualDirectory>
   <VirtualDirectory Name="src">
     <File Name="src/main.cpp"/>
     <File Name="src/SerialPort.cpp"/>
     <File Name="src/Exception.cpp"/>
     <File Name="src/Logger.cpp"/>
+    <File Name="src/CommInterface.cpp"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>

@@ -1,11 +1,108 @@
 #include "SerialPort.h"
 #include "Exception.h"
+#include "Logger.h"
 
-#define BAUDRATE B19200
-
-SerialPort::SerialPort(string portName) : m_portName(portName)
+SerialPort::SerialPort(string portName, uint32_t baudRate) : m_portName(portName) 
 {
     m_portFd = -1;
+    
+    switch(baudRate)
+    {
+        case 50:
+            m_baudRate = B50;
+            break;
+        case 75:
+            m_baudRate = B75;
+            break;
+        case 110:
+            m_baudRate = B110;
+            break;
+        case 134:
+            m_baudRate = B134;
+            break;
+        case 150:
+            m_baudRate = B150;
+            break;
+        case 200:
+            m_baudRate = B200;
+            break;
+        case 300:
+            m_baudRate = B300;
+            break;
+        case 600:
+            m_baudRate = B600;
+            break;
+        case 1200:
+            m_baudRate = B1200;
+            break;
+        case 1800:
+            m_baudRate = B1800;
+            break;
+        case 2400:
+            m_baudRate = B2400;
+            break;
+        case 4800:
+            m_baudRate = B4800;
+            break;
+        case 9600:
+            m_baudRate = B9600;
+            break;
+        case 19200:
+            m_baudRate = B19200;
+            break;
+        case 38400:
+            m_baudRate = B38400;
+            break;
+        case 57600:
+            m_baudRate = B57600;
+            break;
+        case 115200:
+            m_baudRate = B115200;
+            break;
+        case 230400:
+            m_baudRate = B230400;
+            break;
+        case 460800:
+            m_baudRate = B460800;
+            break;
+        case 500000:
+            m_baudRate = B500000;
+            break;
+        case 576000:
+            m_baudRate = B576000;
+            break;
+        case 921600:
+            m_baudRate = B921600;
+            break;
+        case 1000000:
+            m_baudRate = B1000000;
+            break;
+        case 1152000:
+            m_baudRate = B1152000;
+            break;
+        case 1500000:
+            m_baudRate = B1500000;
+            break;
+        case 2000000:
+            m_baudRate = B2000000;
+            break;
+        case 2500000:
+            m_baudRate = B2500000;
+            break;
+        case 3000000:
+            m_baudRate = B3000000;
+            break;
+        case 3500000:
+            m_baudRate = B3500000;
+            break;
+        case 4000000:
+            m_baudRate = B4000000;
+            break;
+        default:
+            m_baudRate = B38400;
+            LOGW("Invalid baud rate %d selected, defaulting to %d.", baudRate, m_baudRate);
+            break;
+    }
 }
 
 SerialPort::~SerialPort()
@@ -38,7 +135,7 @@ void SerialPort::open()
       CLOCAL  : local connection, no modem contol
       CREAD   : enable receiving characters
     */
-     m_currentPortSettings.c_cflag = BAUDRATE | CS8 | CLOCAL | CREAD;
+     m_currentPortSettings.c_cflag = m_baudRate | CS8 | CLOCAL | CREAD;
      
     /*
       IGNPAR  : ignore bytes with parity errors
@@ -102,8 +199,13 @@ void SerialPort::setLineDelimiter(char delim)
 }
 
     
-void SerialPort::txData(vector<uint8_t> msg)
+void SerialPort::txData(vector<uint8_t> msg, bool useDelim)
 {
+    if(useDelim)
+    {
+        msg.push_back((uint8_t)m_lineDelim);
+    }
+    
     if(m_portFd < 0)
     {
         THROW_EXCEPTION("Serial port is not open.");
@@ -119,6 +221,14 @@ void SerialPort::txData(vector<uint8_t> msg)
             THROW_EXCEPTION("Failed writing to serial port with errno %d: %s", errno, strerror(errno));
         }
     }
+}
+
+void SerialPort::txData(const char* strMsg, bool useDelim)
+{
+    uint16_t txBufLen = strlen(strMsg);
+      
+    vector<uint8_t> txMsg(strMsg, strMsg + txBufLen);
+    this->txData(txMsg, useDelim);
 }
 
 vector<uint8_t> SerialPort::rxData()
@@ -139,6 +249,46 @@ vector<uint8_t> SerialPort::rxData()
     
     
     vector<uint8_t> rxData(m_rxBuf, m_rxBuf + totalBytesRead);
+    
+    return rxData;
+}
+
+vector<uint8_t> SerialPort::readLine()
+{
+    ssize_t bytesRead = 0;
+    ssize_t totalBytesRead = 0;
+    bool foundDelim = false;
+    vector<uint8_t> rxData;
+    
+    do
+    {
+        bytesRead = read(m_portFd, m_rxBuf + totalBytesRead, 1);
+        
+        if(bytesRead > 0)
+        {
+            if(m_rxBuf[totalBytesRead] == m_lineDelim)
+            {
+                foundDelim = true;
+            }
+            
+            totalBytesRead ++;
+        }
+        
+        if(-1 == bytesRead)
+        {
+            THROW_EXCEPTION("Failed reading from serial port with errno %d: %s", errno, strerror(errno));
+        }
+    } while((false == foundDelim) || (bytesRead != 0));
+    
+    if(false == foundDelim)
+    {
+        THROW_EXCEPTION("Timed out waiting for end-of-line delimiter.");
+    }
+    
+    if(0 < totalBytesRead)
+    {
+        rxData = vector<uint8_t>(m_rxBuf, m_rxBuf + totalBytesRead);
+    }
     
     return rxData;
 }
