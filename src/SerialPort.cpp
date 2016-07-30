@@ -5,6 +5,7 @@
 SerialPort::SerialPort(string portName, uint32_t baudRate) : m_portName(portName) 
 {
     m_portFd = -1;
+	m_lineDelim = '\0';
     
     switch(baudRate)
     {
@@ -280,7 +281,7 @@ vector<uint8_t> SerialPort::readLine()
         }
     } while((false == foundDelim) || (bytesRead != 0));
     
-    if(false == foundDelim)
+    if((false == foundDelim) && (bytesRead > 0))
     {
         THROW_EXCEPTION("Timed out waiting for end-of-line delimiter.");
     }

@@ -21,7 +21,7 @@ public:
     vector<string> reset();
     
 private:
-    vector<uint8_t> performTransaction(const char* txMsg, uint8_t postTxWait = 0);
+    vector<uint8_t> performTransaction(const char* txMsg, uint8_t postTxWait = 0, uint8_t linesExpected = 1);
     SerialPort* m_serialPort;
 };
 

@@ -17,8 +17,10 @@ CommInterface::CommInterface(string portName, uint32_t baudRate)
     }
 }
 
-vector<uint8_t> CommInterface::performTransaction(const char* txMsg, uint8_t postTxWait)
+vector<uint8_t> CommInterface::performTransaction(const char* txMsg, uint8_t postTxWait, uint8_t linesExpected)
 {
+	uint8_t lines_received = 0;
+	
     if(NULL == m_serialPort)
     {
         THROW_EXCEPTION("Serial port is NULL.");
@@ -39,6 +41,7 @@ vector<uint8_t> CommInterface::performTransaction(const char* txMsg, uint8_t pos
           string rxMsgStr(rxMsg.begin(), rxMsg.end());
           cout << "received " << rxMsg.size() << " bytes: " << rxMsgStr << endl;
           rxMsgStr.append("\n");
+		  linesReceived++;
         }
     } while(rxMsg.size() > 0);
     
