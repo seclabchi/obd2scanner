@@ -19,9 +19,9 @@ public:
     virtual ~CommInterface();
     
     vector<string> reset();
-    
+    vector<uint8_t> performTransaction(const char* txMsg, uint32_t postTxWait = 0, uint8_t linesExpected = 1);
+
 private:
-    vector<uint8_t> performTransaction(const char* txMsg, uint8_t postTxWait = 0, uint8_t linesExpected = 1);
     SerialPort* m_serialPort;
 };
 

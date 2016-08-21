@@ -199,6 +199,16 @@ void SerialPort::setLineDelimiter(char delim)
     m_lineDelim = delim;
 }
 
+void SerialPort::txData(string msg, bool useDelim)
+{
+    vector<uint8_t> rawMsg(msg.begin(), msg.end());
+    this->txData(rawMsg, useDelim);
+}
+
+void SerialPort::txData(const char* msg, bool useDelim)
+{
+    this->txData(string(msg), useDelim);
+}
     
 void SerialPort::txData(vector<uint8_t> msg, bool useDelim)
 {
@@ -224,14 +234,10 @@ void SerialPort::txData(vector<uint8_t> msg, bool useDelim)
     }
 }
 
-void SerialPort::txData(const char* strMsg, bool useDelim)
-{
-    uint16_t txBufLen = strlen(strMsg);
-      
-    vector<uint8_t> txMsg(strMsg, strMsg + txBufLen);
-    this->txData(txMsg, useDelim);
-}
-
+/* This will read all bytes available with the configured timeout on the serial
+ * port.  Future enhancements should include a function which will read a specified
+ * number of bytes to avoid a timeout wait.
+ */
 vector<uint8_t> SerialPort::rxData()
 {
     ssize_t bytesRead = 0;
@@ -247,7 +253,6 @@ vector<uint8_t> SerialPort::rxData()
             THROW_EXCEPTION("Failed reading from serial port with errno %d: %s", errno, strerror(errno));
         }
     } while(bytesRead > 0);
-    
     
     vector<uint8_t> rxData(m_rxBuf, m_rxBuf + totalBytesRead);
     
@@ -279,7 +284,7 @@ vector<uint8_t> SerialPort::readLine()
         {
             THROW_EXCEPTION("Failed reading from serial port with errno %d: %s", errno, strerror(errno));
         }
-    } while((false == foundDelim) || (bytesRead != 0));
+    } while((false == foundDelim) && (bytesRead != 0));
     
     if((false == foundDelim) && (bytesRead > 0))
     {

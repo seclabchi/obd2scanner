@@ -3,6 +3,7 @@
 
 #include <stdarg.h>
 #include <string>
+#include <string.h>
 
 #include "Exception.h"
 
@@ -32,6 +33,7 @@ namespace Tonekids
         void logMsg(LOG_LEVEL level, const char* file, int line, const char* format, va_list args);
         void logException(Exception e);
         string logLevelToString(LOG_LEVEL level);
+        string getFileString(const char* rawFileStr);
     private:
         static Logger* m_instance;
     };

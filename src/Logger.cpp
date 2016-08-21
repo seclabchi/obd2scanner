@@ -48,7 +48,7 @@ namespace Tonekids
         char logMsg[MAX_MSG_LEN];
         vsnprintf(logMsg, MAX_MSG_LEN, format, args);
         
-        os << logLevelToString(level) << "\t" << file << ":" << line << " - " << logMsg;
+        os << logLevelToString(level) << "\t" << getFileString(file) << ":" << line << " - " << logMsg;
         cout << os.str() << endl;
     }
     
@@ -57,6 +57,13 @@ namespace Tonekids
         ostringstream os;
         os << logLevelToString(EXCEPTION) << "\t" << e.getFile() << ":" << e.getLine() << " - "<< e.getMsg();
         cout << os.str() << endl;
+    }
+    
+    string Logger::getFileString(const char* rawFileStr)
+    {
+        const char* trimmed = strrchr(rawFileStr, '/');
+        trimmed++;
+        return trimmed;
     }
 
     string Logger::logLevelToString(LOG_LEVEL level)

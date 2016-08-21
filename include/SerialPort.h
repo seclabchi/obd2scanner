@@ -26,8 +26,9 @@ class SerialPort
     bool isOpen();
     void setLineDelimiter(char delim);
     
+    void txData(string msg, bool useDelim = true);
+    void txData(const char* msg, bool useDelim = true);
     void txData(vector<uint8_t> msg, bool useDelim = true);
-    void txData(const char* strMsg, bool useDelim = true);
     vector<uint8_t> rxData();
     vector<uint8_t> readLine();
 
