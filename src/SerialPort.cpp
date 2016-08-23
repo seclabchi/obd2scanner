@@ -111,7 +111,7 @@ SerialPort::~SerialPort()
     
 }
 
-void SerialPort::open()
+void SerialPort::open(uint32_t charWait)
 {
     if(0 <= m_portFd)
     {
@@ -162,7 +162,7 @@ void SerialPort::open()
       default values can be found in /usr/include/termios.h, and are given
       in the comments, but we don't need them here
     */
-     m_currentPortSettings.c_cc[VTIME]    = 2;     /* inter-character timer 0.2s */
+     m_currentPortSettings.c_cc[VTIME]    = charWait;     /* inter-character timer 0.2s */
      m_currentPortSettings.c_cc[VMIN]     = 0;     /* timed read based on VTIME */
     
     /* 
@@ -238,7 +238,7 @@ void SerialPort::txData(vector<uint8_t> msg, bool useDelim)
  * port.  Future enhancements should include a function which will read a specified
  * number of bytes to avoid a timeout wait.
  */
-vector<uint8_t> SerialPort::rxData()
+vector<uint8_t> SerialPort::rxData(uint32_t numChars)
 {
     ssize_t bytesRead = 0;
     ssize_t totalBytesRead = 0;
@@ -253,6 +253,11 @@ vector<uint8_t> SerialPort::rxData()
             THROW_EXCEPTION("Failed reading from serial port with errno %d: %s", errno, strerror(errno));
         }
     } while(bytesRead > 0);
+	
+	if(bytesRead < numChars)
+	{
+		THROW_EXCEPTION("Read %d bytes: less than required number of %d bytes.", numChars, bytesRead);
+	}
     
     vector<uint8_t> rxData(m_rxBuf, m_rxBuf + totalBytesRead);
     

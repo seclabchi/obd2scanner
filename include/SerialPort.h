@@ -21,7 +21,7 @@ class SerialPort
     public:
     SerialPort(string portName, uint32_t baudRate);
     virtual ~SerialPort();
-    void open();
+    void open(uint32_t charWait);  //charWait in deciseconds to wait per character
     int close();
     bool isOpen();
     void setLineDelimiter(char delim);
@@ -29,7 +29,7 @@ class SerialPort
     void txData(string msg, bool useDelim = true);
     void txData(const char* msg, bool useDelim = true);
     void txData(vector<uint8_t> msg, bool useDelim = true);
-    vector<uint8_t> rxData();
+    vector<uint8_t> rxData(uint32_t numChars = 0);
     vector<uint8_t> readLine();
 
     private:

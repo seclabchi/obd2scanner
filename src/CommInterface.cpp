@@ -8,7 +8,7 @@ CommInterface::CommInterface(string portName, uint32_t baudRate)
     {
         m_serialPort = new SerialPort(portName, baudRate);
         m_serialPort->setLineDelimiter('\r');
-        m_serialPort->open();
+        m_serialPort->open(2);
     }
     catch(Exception e)
     {
@@ -25,6 +25,14 @@ vector<uint8_t> CommInterface::performTransaction(const char* txMsg, uint32_t po
     {
         THROW_EXCEPTION("Serial port is NULL.");
     }
+	
+	//flush the serial port.  There shouldn't be any junk data sitting on the line...
+	vector<uint8_t> portJunk = m_serialPort->rxData();  //defaults to all chars, no wait
+	
+ 	if(portJunk.size() > 0)
+	{
+		LOGW("%d bytes of junk data found pending on serial port.", portJunk.size());
+	}
         
     m_serialPort->txData(txMsg);
     

@@ -232,11 +232,19 @@ int runCommandLineMode()
 
 const char* parseInputString(string inStr)
 {
+	uint8_t numArgs = 0;
     char *token = std::strtok((char*)inStr.c_str(), ",");
+	
     while (token != NULL) {
         std::cout << token << '\n';
+		numArgs++;
         token = std::strtok(NULL, ",");
     }
+	
+	if(3 != numArgs)
+	{
+		THROW_EXCEPTION("Wrong number of arguments.");
+	}
     
     return inStr.c_str();
 }
